@@ -1,6 +1,7 @@
 import socket
 import time
-
+import os
+import zipfile
 def receive_file(file_path, host, port):
     """
     Receives a file over TCP and saves it to the specified path.
@@ -40,6 +41,49 @@ def send_file(file_path, target_servers, max_attempts=5, retry_delay=2):
                     time.sleep(retry_delay)
                 else:
                     print(f"Failed to send {file_path} to {host}:{port} after {max_attempts} attempts.")
+def receive_and_unzip_files(host, port, output_dir):
+    """
+    Listens for incoming zip files from x.py, y.py, and z.py, saves them, and unzips them into the specified output directory.
+    """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((host, port))
+    server_socket.listen(3)  # Expecting 3 connections
+    print(f"Waiting for zip files on {host}:{port}...")
+
+    for _ in range(3):  # Expecting 3 files in total
+        conn, addr = server_socket.accept()
+        with conn:
+            print(f"Connection established with {addr}")
+            received_zip = os.path.join(output_dir, f"received_{addr[1]}.zip")
+            with open(received_zip, 'wb') as file:
+                while True:
+                    data = conn.recv(1024)
+                    if not data:
+                        break
+                    file.write(data)
+            print(f"File received and saved as {received_zip}")
+            unzip_file(received_zip, output_dir)
+            os.remove(received_zip)  # Delete the zip file after extraction
+
+def unzip_file(zip_path, extract_to):
+    """
+    Unzips the file at zip_path to the directory specified by extract_to.
+    """
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_to)
+    print(f"Files from {zip_path} have been extracted to {extract_to}")
+
+
+def zip_directory(directory_name, zip_name):
+    with zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, dirs, files in os.walk(directory_name):
+            for file in files:
+                file_path = os.path.join(root, file)
+                zipf.write(file_path, arcname=os.path.relpath(file_path, start=directory_name))
+    print(f"Directory {directory_name} zipped into {zip_name}")
 
 
 if __name__ == "__main__":
@@ -59,6 +103,18 @@ if __name__ == "__main__":
     
     # Step 2: Forward the file to the target servers
     send_file(file_path, target_servers)
+    common_output_dir = 'Common_Output'  # Directory where files from x, y, z are extracted
+    receive_and_unzip_files('localhost', 12349, common_output_dir)
+    final_zip_name = 'final_output.zip'
+    zip_directory('Common_Output', final_zip_name)
+    send_file(final_zip_name, 'localhost', 12350)
+
+
+
+
+
+
+
 
 
 

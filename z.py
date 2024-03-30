@@ -66,6 +66,19 @@ def receive_file(file_path, host, port):
                         break
                     file.write(data)
             print(f"File received and saved as {file_path}")
+def send_file_back(file_path, host, port):
+    """
+    Sends the specified file to the given host and port using a TCP socket.
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.connect((host, port))
+            with open(file_path, 'rb') as file:
+                sock.sendfile(file)
+            print(f"File {file_path} has been sent back to {host}:{port}")
+        except Exception as e:
+            print(f"Failed to send {file_path} back to {host}:{port}. Error: {str(e)}")
+
 
 if __name__ == "__main__":
     file_path = 'received_user_input_z.zip'  # The file path to save the received zip file
@@ -84,6 +97,10 @@ if __name__ == "__main__":
     # Process the unzipped files
     process_files(input_dir, output_dir)
     zip_directory(output_dir,"z.zip")
+    # Assuming ds.py is listening on localhost:12349 for the files from x.py, y.py, and z.py
+    send_file_back("z.zip", 'localhost', 12349)
+
+    
 
 
 

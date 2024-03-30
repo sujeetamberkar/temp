@@ -35,6 +35,18 @@ def process_files(input_dir, output_dir):
         else:
             # Copy files, skipping .DS_Store
             shutil.copy2(source, destination)
+def send_file_back(file_path, host, port):
+    """
+    Sends the specified file to the given host and port using a TCP socket.
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.connect((host, port))
+            with open(file_path, 'rb') as file:
+                sock.sendfile(file)
+            print(f"File {file_path} has been sent back to {host}:{port}")
+        except Exception as e:
+            print(f"Failed to send {file_path} back to {host}:{port}. Error: {str(e)}")
 
 def unzip_file(zip_path, extract_to):
     """
@@ -85,5 +97,7 @@ if __name__ == "__main__":
     # Process the unzipped files
     process_files(input_dir, output_dir)
     zip_directory(output_dir,"y.zip")
+    send_file_back("y.zip", 'localhost', 12349)
+
 
 
