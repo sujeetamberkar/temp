@@ -107,7 +107,7 @@ if __name__ == "__main__":
     receive_and_unzip_files('localhost', 12349, common_output_dir)
     final_zip_name = 'final_output.zip'
     zip_directory('Common_Output', final_zip_name)
-    send_file(final_zip_name, 'localhost', 12350)
+    send_file(final_zip_name, [('localhost', 12350)])
 
 
 

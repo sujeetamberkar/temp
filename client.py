@@ -26,6 +26,7 @@ def receive_and_unzip_file(file_path, host, port, extract_to):
     Receives a file over TCP and saves it to the specified path, then unzips it.
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((host, port))
         sock.listen(1)
         print(f"Waiting for file on {host}:{port}...")
