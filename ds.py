@@ -2,6 +2,7 @@ import socket
 import time
 import os
 import zipfile
+import pandas as pd
 def receive_file(file_path, host, port):
     """
     Receives a file over TCP and saves it to the specified path.
@@ -84,6 +85,34 @@ def zip_directory(directory_name, zip_name):
                 file_path = os.path.join(root, file)
                 zipf.write(file_path, arcname=os.path.relpath(file_path, start=directory_name))
     print(f"Directory {directory_name} zipped into {zip_name}")
+def combine_csv_files(directory_path):
+    # List all CSV files in the directory
+    csv_files = [file for file in os.listdir(directory_path) if file.endswith('.csv')]
+    
+    # Combine all CSV files into one dataframe
+    combined_csv_data = pd.DataFrame()
+    for file in csv_files:
+        file_path = os.path.join(directory_path, file)
+        csv_data = pd.read_csv(file_path)
+        combined_csv_data = pd.concat([combined_csv_data, csv_data], ignore_index=True)
+    
+    # Save the combined dataframe to 'final.csv' in the same directory
+    final_csv_path = os.path.join(directory_path, 'final.csv')
+    combined_csv_data.to_csv(final_csv_path, index=False)
+    
+    # Delete the old CSV files
+    for file in csv_files:
+        os.remove(os.path.join(directory_path, file))
+
+def delete_file(file_path):
+    # Check if file exists
+    if os.path.exists(file_path):
+        # Delete the file
+        os.remove(file_path)
+        print(f"File {file_path} has been deleted.")
+    else:
+        print(f"File {file_path} does not exist.")
+
 
 
 if __name__ == "__main__":
@@ -105,9 +134,15 @@ if __name__ == "__main__":
     send_file(file_path, target_servers)
     common_output_dir = 'Common_Output'  # Directory where files from x, y, z are extracted
     receive_and_unzip_files('localhost', 12349, common_output_dir)
+    combine_csv_files("Common_Output")
     final_zip_name = 'final_output.zip'
     zip_directory('Common_Output', final_zip_name)
     send_file(final_zip_name, [('localhost', 12350)])
+    delete_file('received_data.zip')
+    delete_file('final_output.zip')
+
+
+
 
 
 

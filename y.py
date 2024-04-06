@@ -79,6 +79,15 @@ def receive_file(file_path, host, port):
                     file.write(data)
             print(f"File received and saved as {file_path}")
 
+def delete_file(file_path):
+    # Check if file exists
+    if os.path.exists(file_path):
+        # Delete the file
+        os.remove(file_path)
+        print(f"File {file_path} has been deleted.")
+    else:
+        print(f"File {file_path} does not exist.")
+
 
 if __name__ == "__main__":
     file_path = 'received_user_input_y.zip'  # The file path to save the received zip file
@@ -95,9 +104,14 @@ if __name__ == "__main__":
     unzip_file(file_path, input_dir)
     
     # Process the unzipped files
-    process_files(input_dir, output_dir)
+    # process_files(input_dir, output_dir)
+
     zip_directory(output_dir,"y.zip")
     send_file_back("y.zip", 'localhost', 12349)
+    delete_file('received_user_input_y.zip')
+    delete_file('y.zip')
+
+    
 
 
 

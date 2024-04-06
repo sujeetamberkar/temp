@@ -44,6 +44,16 @@ def receive_and_unzip_file(file_path, host, port, extract_to):
     with zipfile.ZipFile(file_path, 'r') as zip_ref:
         zip_ref.extractall(extract_to)
     print(f"File {file_path} has been unzipped to {extract_to}")
+def delete_file(file_path):
+    # Check if file exists
+    if os.path.exists(file_path):
+        # Delete the file
+        os.remove(file_path)
+        print(f"File {file_path} has been deleted.")
+    else:
+        print(f"File {file_path} does not exist.")
+
+
 
 if __name__ == "__main__":
     input_dir = 'User_Input'  # Directory to zip
@@ -68,4 +78,8 @@ if __name__ == "__main__":
         os.makedirs(extract_to)
     
     receive_and_unzip_file(file_path, host, port, extract_to)
+    delete_file('user_input.zip')
+    delete_file('received_final_output.zip')
+
+    
 

@@ -78,6 +78,14 @@ def send_file_back(file_path, host, port):
             print(f"File {file_path} has been sent back to {host}:{port}")
         except Exception as e:
             print(f"Failed to send {file_path} back to {host}:{port}. Error: {str(e)}")
+def delete_file(file_path):
+    # Check if file exists
+    if os.path.exists(file_path):
+        # Delete the file
+        os.remove(file_path)
+        print(f"File {file_path} has been deleted.")
+    else:
+        print(f"File {file_path} does not exist.")
 
 
 if __name__ == "__main__":
@@ -95,8 +103,13 @@ if __name__ == "__main__":
     unzip_file(file_path, input_dir)
     
     # Process the unzipped files
-    process_files(input_dir, output_dir)
+    # process_files(input_dir, output_dir)
+
+    
     zip_directory(output_dir,"x.zip")
     send_file_back("x.zip", 'localhost', 12349)
+    delete_file('received_user_input_x.zip')
+    delete_file('x.zip')
+
 
 

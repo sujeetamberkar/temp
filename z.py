@@ -79,6 +79,16 @@ def send_file_back(file_path, host, port):
         except Exception as e:
             print(f"Failed to send {file_path} back to {host}:{port}. Error: {str(e)}")
 
+def delete_file(file_path):
+    # Check if file exists
+    if os.path.exists(file_path):
+        # Delete the file
+        os.remove(file_path)
+        print(f"File {file_path} has been deleted.")
+    else:
+        print(f"File {file_path} does not exist.")
+
+
 
 if __name__ == "__main__":
     file_path = 'received_user_input_z.zip'  # The file path to save the received zip file
@@ -95,10 +105,16 @@ if __name__ == "__main__":
     unzip_file(file_path, input_dir)
     
     # Process the unzipped files
-    process_files(input_dir, output_dir)
+    # process_files(input_dir, output_dir)
+
+
     zip_directory(output_dir,"z.zip")
     # Assuming ds.py is listening on localhost:12349 for the files from x.py, y.py, and z.py
     send_file_back("z.zip", 'localhost', 12349)
+
+    delete_file('received_user_input_z.zip')
+    delete_file('z.zip')
+
 
     
 
